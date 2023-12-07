@@ -95,7 +95,7 @@ const getUltimosTurnos = async () => {
     return turnos;
 }
 
-// Funcion para obtener los ultimos 5 turnos atendidos
+// Function para obtener el turno que se va a asignar
 const getTurnoAsignar = async () => {
     const turnos = await prisma.clients_queues.findFirst({
         where: {
@@ -132,7 +132,7 @@ const getCliente = async (documento) => {
     return cliente;
 }
 
-// Funcion para crear el turno en la tabla clients_queues
+// Funcion para crear el turno en la tabla clients_queues y colocar la prioridad al insertar el cliente
 const crearTurno = async (cliente) => {
     const turno = await prisma.clients_queues.create({
         data: {
@@ -141,6 +141,7 @@ const crearTurno = async (cliente) => {
                     id: cliente.id
                 }
             },
+            priority: cliente.priority,
             status: 0
         }
     });

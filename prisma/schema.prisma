@@ -21,6 +21,7 @@ model clients_queues {
   id         Int       @id @default(autoincrement())
   client_id  Int?
   code       String?   @db.VarChar(10)
+  priority   Int?      @default(5)
   created_at DateTime? @default(now()) @db.Timestamp(6)
   status     Int?      @default(0)
   clients    clients?  @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
