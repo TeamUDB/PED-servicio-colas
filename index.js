@@ -44,29 +44,29 @@ app.post('/api/turno/solicitar', (req, res) => {
 app.post('/api/turno/iniciar', jsonParser, (req, res, next) => {
     const {id, code} = req.body;
     return updateTurno(id, code, 1).then((turno) => {
-        res.json({turno: turno.code});
+        res.json({id: turno.id, code: turno.code});
     }).then(async () => {
         await prisma.$disconnect();
     });
 });
 
 /* Cancela el turno */
-app.post('/api/turno/cancelar',jsonParser, (req, res) => {
+app.post('/api/turno/cancelar', jsonParser, (req, res) => {
     const {id, code} = req.body;
     return updateTurno(id, code, 2).then((turno) => {
-        res.json({turno: turno.code});
+        res.json({id: turno.id, code: turno.code});
     }).then(async () => {
         await prisma.$disconnect();
     });
 });
 
 /* Recibe el numero de documento y devuelve el turno que le corresponde */
-app.post('/api/turno/asignar/:documento',jsonParser, (req, res) => {
-    const documento = req.body.documento;
-    return getCliente(documento).then((cliente) => {
+app.post('/api/turno/asignar', jsonParser, (req, res) => {
+    const {document} = req.body;
+    return getCliente(document).then((cliente) => {
         if (cliente) {
             return crearTurno(cliente).then((turno) => {
-                res.json({turno: turno.code});
+                res.json({id: turno.id, code: turno.code});
             });
         } else {
             res.json({error: 'No fue posible asignar el turno'});
