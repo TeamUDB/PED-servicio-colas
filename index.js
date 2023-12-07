@@ -1,10 +1,19 @@
+const PrismaClient = require('@prisma/client').PrismaClient;
 const express = require('express');
+
+
+
+const prisma = new PrismaClient()
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
 
-app.get('/api/turno/actual', (req, res) => {
-    res.json({turno: 'P09'});
+app.get('/api/turno/actual', async (req, res) => {
+    return getTurnoActual().then((turno) => {
+        res.json({turno: turno.code});
+    }).then(async() => {
+        await prisma.$disconnect();
+    });
 });
 
 /* Lista los ultimos 5 turnos que se han  atendido */
@@ -38,3 +47,16 @@ app.post('/api/turno/asignar/:documento', (req, res) => {
 server.listen(3000, () => {
     console.log('listening on *:3000');
 });
+
+// Funcion para obtener el turno actual
+const getTurnoActual = async () => {
+    const turno = await prisma.clients_queues.findFirst({
+        where: {
+            status: 1
+        },
+        orderBy: {
+            created_at: 'desc'
+        }
+    });
+    return turno;
+}
