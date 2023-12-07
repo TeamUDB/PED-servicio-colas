@@ -31,10 +31,7 @@ app.get('/api/turno/ultimos', (req, res) => {
 /* Solicita que le asignen el turno que va a ser atendido */
 app.post('/api/turno/solicitar', (req, res) => {
     return getTurnoAsignar().then((turno) => {
-        res.json({
-            id: turno.id,
-            code: turno.code
-        });
+        res.json({id: turno.id, code: turno.code});
     }).then(async () => {
         await prisma.$disconnect();
     });
@@ -97,7 +94,7 @@ const getUltimosTurnos = async () => {
 
 // Function para obtener el turno que se va a asignar
 const getTurnoAsignar = async () => {
-    const turnos = await prisma.clients_queues.findFirst({
+    const records = await prisma.clients_queues.findMany({
         where: {
             status: 0
         },
@@ -105,7 +102,17 @@ const getTurnoAsignar = async () => {
             created_at: 'asc'
         }
     });
-    return turnos;
+
+    // Buscar el registro con la prioridad mas alta
+    let turno = records[0];
+    let diffSeconds = Math.abs(new Date() - turno.created_at) * turno.priority;
+    const now = new Date();
+    records.forEach((record) => {
+        if ((Math.abs(now - record.created_at) * record.priority) > diffSeconds) {
+            turno = record;
+        }
+    });
+    return turno;
 }
 
 // Funcion para actualizar el estado del turno
